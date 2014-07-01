@@ -126,7 +126,9 @@ BCRexternalBWT::BCRexternalBWT ( const string &file1, const string &fileOutput, 
         if ( BUILD_SA == 1 )  //To store the SA
         {
             storeEntirePairSA( fileOutput.c_str() );
+#ifndef AVOID_NON_pairSA_FILE
             storeEntireSAfromPairSA( fileOutput.c_str() );
+#endif
         }
 
         if ( verboseEncode == 1 )
@@ -199,7 +201,9 @@ BCRexternalBWT::BCRexternalBWT ( const string &file1, const string &fileOutput, 
                             outFile << bufferBWT[i]
                                     << '\t' << bufferLCP[i]
                                     << '\t' << buffer[i].sa
+#ifndef SLIM_STRUCTURES
                                     << '\t' << buffer[i].numSeq
+#endif
                                     << '\t' << bufferNChar[i]
                                     << endl;
                         }

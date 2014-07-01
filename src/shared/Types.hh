@@ -21,6 +21,9 @@
 #include <stdint.h>
 #include <string>
 
+#define SLIM_STRUCTURES
+#define AVOID_NON_pairSA_FILE
+
 using std::string;
 
 
@@ -35,7 +38,11 @@ typedef unsigned long ulong;
 typedef uint32_t SequenceNumber;
 
 // Type to represent: Sequence length (in biologic case 100)
+#ifdef SLIM_STRUCTURES
+typedef uint8_t SequenceLength;
+#else
 typedef uint32_t SequenceLength;
+#endif
 
 // Type to represent: character position or number of characters in BWT
 // Should work for BWT of up to 2^64 characters in size
@@ -58,10 +65,12 @@ const uint taxLevelSize = 11;
 typedef uint32_t MetagFileNumRefType;
 
 // For generalized suffix array (GSA): Definition of each element
-struct ElementType
+struct __attribute__ ((__packed__)) ElementType
 {
     SequenceLength sa;          //It is the position in the sequence, so it goes from 0 a length read
+#ifndef SLIM_STRUCTURES
     SequenceNumber numSeq;  //It is the number of the sequence.
+#endif
 };
 
 // For Huffman encoder

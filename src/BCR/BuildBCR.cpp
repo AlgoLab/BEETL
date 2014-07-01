@@ -33,6 +33,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <stdexcept>
 
 #ifdef _OPENMP
 # include <omp.h>
@@ -989,7 +990,9 @@ void BCRexternalBWT::InsertFirstsymbols( uchar const *newSymb, uchar const *newS
         {
             //newEle[j].sa=(iterationNum + 1) % (lengthRead + 1);
             newEle[j].sa = lengthRead;
+#ifndef SLIM_STRUCTURES
             newEle[j].numSeq = j;
+#endif
             //cerr << "(" << (int)newEle[j].sa << ", " << newEle[j].numSeq << ")\n";
         }
         //Store into $-pile SA
@@ -2044,7 +2047,9 @@ void BCRexternalBWT::storeSA( SequenceLength iterationNum )
             {
                 ElementType newEle;
                 newEle.sa = iterationNum; //( posSymb + 1 ) % ( lengthRead + 1 );
+#ifndef SLIM_STRUCTURES
                 newEle.numSeq = vectTriple[k].seqN;
+#endif
 
                 numchar = fwrite ( &newEle, sizeof( ElementType ), 1, OutFileSA );
                 checkIfEqual( numchar, 1 ); // we should always read/write the same number of characters
@@ -2187,6 +2192,7 @@ void BCRexternalBWT::storeEntirePairSA( const char *fn )
 
     if ( verboseEncode == 1 )
     {
+#ifndef SLIM_STRUCTURES
         OutFileSA = fopen( fnSA, "rb" );
         if ( OutFileSA == NULL )
         {
@@ -2213,6 +2219,7 @@ void BCRexternalBWT::storeEntirePairSA( const char *fn )
         cerr << endl;
 
         fclose( OutFileSA );
+#endif
     }
 
     delete [] buffer;
@@ -2275,7 +2282,11 @@ void BCRexternalBWT::storeEntireSAfromPairSA( const char *fn )
         {
             for ( LetterNumber i = 0; i < numchar; i++ )
             {
+#ifndef SLIM_STRUCTURES
                 bufferNChar[i] = ( LetterNumber )( buffer[i].numSeq * ( lengthRead + 1 ) + buffer[i].sa );
+#else
+                bufferNChar[i] = 0;
+#endif
                 //cerr << buffer[i].numSeq << " " << (int)lengthRead << " " << (int)buffer[i].sa << " --> " << (int)bufferNChar[i] << "\n";
                 //bufferNChar[i] = (LetterNumber)(vectSumCumLen[buffer[i].numSeq] + buffer[i].sa);       //it will be useful for varying length reads
                 //cerr << "vectSumCumLen["<< buffer[i].numSeq<< "]= " << (int)vectSumCumLen[buffer[i].numSeq] << " + " << (int)buffer[i].sa << " --> " << (int)bufferNChar[i] << "\n";
@@ -2925,6 +2936,13 @@ void BCRexternalBWT::writeEndPosFile( const uint8_t subSequenceNum, const bool l
     {
         subSequenceCount = firstTime ? 1 : 2;
     }
+#ifdef SLIM_STRUCTURES
+	 const unsigned int bytes_to_read= sizeof( SequenceNumber );
+	 if ( subSequenceCount > 1 || hasRevComp )
+		throw std::logic_error("'end-pos' files with paired-end reads or reverse and complement reads are not supported!");
+#else
+	 const unsigned int bytes_to_read= sizeof( SequenceNumber ) + sizeof( uint8_t );
+#endif
     numchar = fwrite ( &seqCount, sizeof( SequenceNumber ), 1 , OutFileEndPos );
     assert( numchar == 1 );
     numchar = fwrite ( &subSequenceCount, sizeof( uint8_t ), 1 , OutFileEndPos );
@@ -2953,8 +2971,8 @@ void BCRexternalBWT::writeEndPosFile( const uint8_t subSequenceNum, const bool l
             Logger_if( LOG_FOR_DEBUGGING ) Logger::out() << "Transfer " << counters.count_[0] << " entries" << endl;
             for ( unsigned int j = 0; j < counters.count_[0]; ++j )
             {
-                fread( inBuf, sizeof( SequenceNumber ) + sizeof( uint8_t ), 1, inFileEndPos );
-                fwrite( inBuf, sizeof( SequenceNumber ) + sizeof( uint8_t ), 1, OutFileEndPos );
+                fread( inBuf, bytes_to_read, 1, inFileEndPos );
+                fwrite( inBuf, bytes_to_read, 1, OutFileEndPos );
             }
 
             // open next bwt file
@@ -2983,8 +3001,8 @@ void BCRexternalBWT::writeEndPosFile( const uint8_t subSequenceNum, const bool l
         Logger_if( LOG_FOR_DEBUGGING ) Logger::out() << "Transfer(2) " << counters.count_[0] << " entries" << endl;
         for ( unsigned int j = 0; j < counters.count_[0]; ++j )
         {
-            fread( inBuf, sizeof( SequenceNumber ) + sizeof( uint8_t ), 1, inFileEndPos );
-            fwrite( inBuf, sizeof( SequenceNumber ) + sizeof( uint8_t ), 1, OutFileEndPos );
+            fread( inBuf, bytes_to_read, 1, inFileEndPos );
+            fwrite( inBuf,  bytes_to_read, 1, OutFileEndPos );
         }
 
         // read&count 1 char: check that it's a '$' sign
@@ -3000,8 +3018,10 @@ void BCRexternalBWT::writeEndPosFile( const uint8_t subSequenceNum, const bool l
 
         numchar = fwrite ( &seqNumWithoutRevCompOrPair, sizeof( SequenceNumber ), 1 , OutFileEndPos );
         assert( numchar == 1 );
-        numchar = fwrite ( &extendedSubSeqNum, sizeof( uint8_t ), 1 , OutFileEndPos );
+#ifndef SLIM_STRUCTURES
+		  numchar = fwrite ( &extendedSubSeqNum, sizeof( uint8_t ), 1 , OutFileEndPos );
         assert( numchar == 1 );
+#endif
     }
 
     fclose( OutFileEndPos );

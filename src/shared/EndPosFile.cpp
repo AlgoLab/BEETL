@@ -19,6 +19,9 @@
 
 #include <cassert>
 #include <fstream>
+#include <stdexcept>
+
+#include "Types.hh"
 
 using namespace std;
 
@@ -35,6 +38,11 @@ EndPosFile::EndPosFile( const string &bwtFilenamePrefix )
     //    assert( file_.good() );
     dollarSignCount_ = sequenceGroupCount_ * sequenceCountInGroup_ * ( hasRevComp_ ? 2 : 1 );
 
+#ifdef SLIM_STRUCTURES
+	 if (sequenceCountInGroup_ > 1 || hasRevComp_) {
+		throw std::logic_error("'end-pos' files with paired-end reads or reverse and complement reads are not supported!");
+	 }
+#endif
 
 }
 
@@ -52,12 +60,18 @@ SequenceNumber EndPosFile::convertDollarNumToSequenceNum( const SequenceNumber d
       dollarPos %= numDollarEntries;
       }
     */
+#ifdef SLIM_STRUCTURES
+    file_.seekg( sizeof( SequenceNumber ) + 2 * sizeof( uint8_t ) + ( dollarNum ) * sizeof( SequenceNumber ) );
+#else
     file_.seekg( sizeof( SequenceNumber ) + 2 * sizeof( uint8_t ) + ( dollarNum ) * ( sizeof( SequenceNumber ) + sizeof( uint8_t ) ) );
+#endif
 
-    SequenceNumber sequenceGroupNum;
+	 SequenceNumber sequenceGroupNum;
     file_.read( reinterpret_cast< char * >( &sequenceGroupNum ), sizeof( SequenceNumber ) );
-    uint8_t positionInGroup;
+    uint8_t positionInGroup= (uint8_t)1;
+#ifndef SLIM_STRUCTURES
     file_.read( reinterpret_cast< char * >( &positionInGroup ), sizeof( uint8_t ) );
+#endif
 
     SequenceNumber sequenceNum = sequenceGroupNum + positionInGroup * sequenceGroupCount_;
 
