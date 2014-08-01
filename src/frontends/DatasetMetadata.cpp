@@ -47,7 +47,7 @@ void DatasetMetadata::init( const string &input, const string &inputFormat )
         }
         else
         {
-            FILE *f = fopen( input.c_str(), "rb" );
+            gzFile f = gzopen( input.c_str(), "rb" );
             if ( !f )
             {
                 cerr << "Error: Cannot open " << input << endl;
@@ -58,12 +58,12 @@ void DatasetMetadata::init( const string &input, const string &inputFormat )
 
             // At this point SeqReader will have read the first dataset entry
             // We estimate the total number of entries by dividing the total file size
-            long entrySize = ftell( f );
-            fseek( f, 0, SEEK_END );
-            long fileSize = ftell( f );
+            long entrySize = gztell( f );
+            gzseek( f, 0, SEEK_END );
+            long fileSize = gztell( f );
             nReads = fileSize / entrySize;
             delete pReader;
-            fclose( f );
+            gzclose( f );
         }
     }
 

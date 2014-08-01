@@ -25,6 +25,7 @@
 #include <cassert>
 #include <cstdio>
 #include <string>
+#include <zlib.h>
 
 
 class SeqReaderBase
@@ -43,10 +44,10 @@ public:
 class SeqReaderFile : public SeqReaderBase
 {
 public:
-    static SeqReaderFile *getReader( FILE *pFile );
+    static SeqReaderFile *getReader( gzFile pFile );
 
 
-    SeqReaderFile( FILE *pFile );
+    SeqReaderFile( gzFile pFile );
     virtual ~SeqReaderFile();
 
     virtual void readNext( char *seqBuf = NULL ) = 0;
@@ -57,7 +58,7 @@ public:
     virtual int length( void ) const;
     void rewindFile();
 protected:
-    FILE *pFile_;
+    gzFile pFile_;
     char bufSeq_[1 + maxSeqSize];
     char bufQual_[1 + maxSeqSize];
     char bufName_[1 + maxSeqSize];
@@ -68,7 +69,7 @@ protected:
 class SeqReaderRaw: public SeqReaderFile
 {
 public:
-    SeqReaderRaw( FILE *pFile );
+    SeqReaderRaw( gzFile pFile );
     virtual ~SeqReaderRaw();
 
     virtual void readNext( char *seqBuf = NULL );
@@ -82,7 +83,7 @@ public:
 class SeqReaderFasta: public SeqReaderFile
 {
 public:
-    SeqReaderFasta( FILE *pFile );
+    SeqReaderFasta( gzFile pFile );
     virtual ~SeqReaderFasta();
 
     virtual void readNext( char *seqBuf = NULL );
@@ -95,7 +96,7 @@ public:
 class SeqReaderFastq: public SeqReaderFile
 {
 public:
-    SeqReaderFastq( FILE *pFile );
+    SeqReaderFastq( gzFile pFile );
     virtual ~SeqReaderFastq();
 
     virtual void readNext( char *seqBuf = NULL );

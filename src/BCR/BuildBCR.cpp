@@ -350,17 +350,12 @@ int BCRexternalBWT::buildBCR( const string &file1, const string &fileOut, const 
     {
         TmpFilename cycFilesPrefix2( fileOut ); // "move" filename to temp directory
         cycFilesPrefix = cycFilesPrefix2.str();
-        FILE *f;
-        if ( file1 == "-" )
-            f = stdin;
-        else
-            f = fopen( file1.c_str(), "rb" );
-        SeqReaderFile *pReader( SeqReaderFile::getReader( f ) );
+        gzFile gf= gzopen(file1.c_str(), "rb" );
+        SeqReaderFile *pReader( SeqReaderFile::getReader( gf ) );
         transp.init( pReader, readQualities );
         transp.convert( cycFilesPrefix );
         delete pReader;
-        if ( f != stdin )
-            fclose( f );
+        gzclose(gf);
     }
 
     nText = transp.nSeq;
