@@ -459,9 +459,9 @@ int BCRexternalBWT::buildBCR( const string &file1, const string &fileOut, const 
 #endif
     tableOcc_.clear();
 
-    Logger_if( LOG_SHOW_IF_VERBOSE ) Logger::out() << "\nFirst symbols: " << "Iteration " << 0 << " - symbols in (zero-based) position " << currentCycleFileNum << "\n";
-    Logger::out() << "Starting iteration " << currentIteration << ", time now: " << timer.timeNow();
-    Logger::out() << "Starting iteration " << currentIteration << ", usage: " << timer << endl;
+    Logger_if( LOG_SHOW_IF_VERBOSE ) Logger::out() << "\nFirst symbols: " << "Iteration " << 0 << " - symbols in (zero-based) position " << (int) currentCycleFileNum << "\n";
+    Logger::out() << "Starting iteration " << (int)currentIteration << ", time now: " << timer.timeNow();
+    Logger::out() << "Starting iteration " << (int)currentIteration << ", usage: " << timer << endl;
 
     ReadFilesForCycle( cycFilesPrefix.c_str(), currentCycleFileNum, lengthRead, nText, newSymb, processQualities, newQual );
     InitialiseTmpFiles();
@@ -606,8 +606,8 @@ int BCRexternalBWT::buildBCR( const string &file1, const string &fileOut, const 
         pauseBetweenCyclesIfNeeded ();
 
         Logger_if( LOG_SHOW_IF_VERBOSE ) Logger::out() << "Iteration " << ( int ) currentIteration << " - symbols in position " << ( int ) currentCycleFileNum << endl;
-        Logger::out() << "Starting iteration " << currentIteration << ", time now: " << timer.timeNow();
-        Logger::out() << "Starting iteration " << currentIteration << ", usage: " << timer << endl;
+        Logger::out() << "Starting iteration " << (int)currentIteration << ", time now: " << timer.timeNow();
+        Logger::out() << "Starting iteration " << (int)currentIteration << ", usage: " << timer << endl;
 
 
 
@@ -644,8 +644,8 @@ int BCRexternalBWT::buildBCR( const string &file1, const string &fileOut, const 
 
                     Logger_if( LOG_SHOW_IF_VERBOSE )
                     {
-                        Logger::out() << "Continuing iteration " << currentIteration << ", time now: " << timer.timeNow();
-                        Logger::out() << "Continuing iteration " << currentIteration << ", usage: " << timer << endl;
+                      Logger::out() << "Continuing iteration " << (int) currentIteration << ", time now: " << timer.timeNow();
+                      Logger::out() << "Continuing iteration " << (int) currentIteration << ", usage: " << timer << endl;
                     }
                     InsertFirstsymbols( newSymb, newQual, currentIteration );
                 }
@@ -684,8 +684,8 @@ int BCRexternalBWT::buildBCR( const string &file1, const string &fileOut, const 
     //The last inserted symbol was in position 1 (or it is newSymb[j]),
     //the next symbol (to insert) is in position 0
     Logger_if( LOG_SHOW_IF_VERBOSE ) Logger::out() << "Iteration " << ( int ) currentIteration << " - symbols in position " << ( int ) currentCycleFileNum << endl;
-    Logger::out() << "Starting iteration " << currentIteration << ", time now: " << timer.timeNow();
-    Logger::out() << "Starting iteration " << currentIteration << ", usage: " << timer << endl;
+    Logger::out() << "Starting iteration " << (int) currentIteration << ", time now: " << timer.timeNow();
+    Logger::out() << "Starting iteration " << (int) currentIteration << ", usage: " << timer << endl;
     assert( currentIteration == lengthRead - 1 );
     assert( currentCycleFileNum == 0 || currentCycleFileNum == lengthRead - 1 ); // depending on the --reverse flag
     InsertNsymbols( newSymb, currentIteration, newQual );
@@ -698,8 +698,8 @@ int BCRexternalBWT::buildBCR( const string &file1, const string &fileOut, const 
     //The last inserted symbol was in position 0 (or it is newSymb[j]),
     //the next symbol (to insert) is in position m-1, that is, I have to inserted the symbols $
     Logger_if( LOG_SHOW_IF_VERBOSE ) Logger::out() << "Final iteration " << ( int ) currentIteration << " - Inserting $=" << ( int )terminatorChar << "=" << terminatorChar << " symbols" << endl;
-    Logger::out() << "Starting iteration " << currentIteration << ", time now: " << timer.timeNow();
-    Logger::out() << "Starting iteration " << currentIteration << ", usage: " << timer << endl;
+    Logger::out() << "Starting iteration " << (int) currentIteration << ", time now: " << timer.timeNow();
+    Logger::out() << "Starting iteration " << (int) currentIteration << ", usage: " << timer << endl;
     assert( currentIteration == lengthRead );
     for ( SequenceNumber j = 0 ; j < nText; j++ )
     {
