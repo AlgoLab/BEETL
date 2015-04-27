@@ -189,7 +189,7 @@ void BCRext::run( void )
     Logger_if( LOG_SHOW_IF_VERBOSE ) Logger::out() << prefix << "Will read sequences from file " << inFile_ << endl;
 
     // read first sequence to determine read size
-    SeqReaderFile *seqReader( SeqReaderFile::getReader( fopen( inFile_.c_str(), "rb" ) ) );
+    SeqReaderFile *seqReader( SeqReaderFile::getReader( gzopen( inFile_.c_str(), "rb" ) ) );
     const char *seqBuf = seqReader->thisSeq();
 
     const int seqSize( strlen( seqBuf ) - 1 ); // -1 compensates for \n at end

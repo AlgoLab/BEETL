@@ -141,7 +141,7 @@ void launchBeetlConvert()
         else if ( params["output format"] == OUTPUT_FORMAT_CYC )
         {
             // FASTA -> CYC
-            unique_ptr<SeqReaderFile> pReader( SeqReaderFile::getReader( fopen( params.getStringValue( "input filename" ).c_str(), "rb" ) ) );
+            unique_ptr<SeqReaderFile> pReader( SeqReaderFile::getReader( gzopen( params.getStringValue( "input filename" ).c_str(), "rb" ) ) );
             TransposeFasta trasp;
             trasp.init( pReader.get() );
             trasp.convert( params.getStringValue( "output filename" ), false );
@@ -192,7 +192,7 @@ void launchBeetlConvert()
         else if ( params["output format"] == OUTPUT_FORMAT_CYC )
         {
             // FASTQ -> CYC
-            unique_ptr<SeqReaderFile> pReader( SeqReaderFile::getReader( fopen( params.getStringValue( "input filename" ).c_str(), "rb" ) ) );
+            unique_ptr<SeqReaderFile> pReader( SeqReaderFile::getReader( gzopen( params.getStringValue( "input filename" ).c_str(), "rb" ) ) );
             TransposeFasta trasp;
             trasp.init( pReader.get() );
             trasp.convert( params.getStringValue( "output filename" ), false );
@@ -310,17 +310,12 @@ void launchBeetlConvert()
         {
             // SEQ -> CYC
             string inputFilename = params.getStringValue( "input filename" );
-            FILE *f;
-            if ( inputFilename == "-" )
-                f = stdin;
-            else
-                f = fopen( inputFilename.c_str(), "rb" );
-            unique_ptr<SeqReaderFile> pReader( SeqReaderFile::getReader( f ) );
+            gzFile gf = gzopen(inputFilename.c_str(), "rb" );
+            unique_ptr<SeqReaderFile> pReader( SeqReaderFile::getReader( gf ) );
             TransposeFasta trasp;
             trasp.init( pReader.get() );
             trasp.convert( params.getStringValue( "output filename" ), false );
-            if ( f != stdin )
-                fclose( f );
+            gzclose( gf );
             return;
         }
         else if ( params["output format"] == OUTPUT_FORMAT_BWT_ASCII || params["output format"] == OUTPUT_FORMAT_BWT_RLE )

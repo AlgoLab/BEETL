@@ -104,7 +104,7 @@ int main( const int argc, const char **argv )
     }
 
     string readsFileName = params.getStringValue( "input reads file" );
-    FILE *reads = fopen( readsFileName.c_str(), "r" );
+    gzFile reads = gzopen( readsFileName.c_str(), "r" );
 
     string outputReadsFile = params.getStringValue( "corrected reads output file" );
     cout << "Writing corrector-aligned reads to " << outputReadsFile << "..." << endl;
@@ -140,7 +140,7 @@ int main( const int argc, const char **argv )
 
     aligner->ApplyCorrections( readsFile, corrections, outputReadsFile, false, outFormat );
 
-    fclose( reads );
+    gzclose( reads );
     delete readsFile;
     cout << "Done" << endl;
     return 0;
